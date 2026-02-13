@@ -9,15 +9,19 @@ export function PrimaryButton({
   onPress,
   disabled,
   loading,
+  tone = 'primary',
   testID,
 }: {
   label: string;
   onPress: () => void;
   disabled?: boolean;
   loading?: boolean;
+  tone?: 'primary' | 'danger';
   testID?: string;
 }) {
   const isDisabled = disabled || loading;
+  const bg = tone === 'danger' ? Colors.danger : Colors.primary;
+  const bgPressed = tone === 'danger' ? '#B91C1C' : Colors.primaryPressed;
 
   return (
     <Pressable
@@ -26,8 +30,9 @@ export function PrimaryButton({
       disabled={isDisabled}
       style={({ pressed }) => [
         styles.button,
+        { backgroundColor: bg },
         isDisabled && styles.buttonDisabled,
-        pressed && !isDisabled && styles.buttonPressed,
+        pressed && !isDisabled && { backgroundColor: bgPressed },
       ]}
       accessibilityRole="button"
       accessibilityState={{ disabled: isDisabled, busy: !!loading }}
@@ -42,15 +47,11 @@ export function PrimaryButton({
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: Colors.primary,
     paddingVertical: 14,
     paddingHorizontal: Spacing.md,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  buttonPressed: {
-    backgroundColor: Colors.primaryPressed,
   },
   buttonDisabled: {
     opacity: 0.5,

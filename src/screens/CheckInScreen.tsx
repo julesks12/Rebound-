@@ -66,7 +66,7 @@ export function CheckInScreen({ navigation, route }: Props) {
   );
 
   const initialSnapshotRef = useRef<string>('');
-  const initializedForDateRef = useRef<string | null>(null);
+  const hydratedTokenRef = useRef<string>('');
 
   useEffect(() => {
     const title = existing
@@ -79,24 +79,7 @@ export function CheckInScreen({ navigation, route }: Props) {
     navigation.setOptions({ title });
   }, [existing, isToday, navigation]);
 
-  useEffect(() => {
-    // Only initialize when date changes (don’t stomp on in-progress edits).
-    if (initializedForDateRef.current === dateKey) return;
-    initializedForDateRef.current = dateKey;
-    initialSnapshotRef.current = '';
-
-    setMood(existing?.mood ?? 5);
-    setEnergy(existing?.energy ?? 5);
-    setSleepQuality(existing?.sleepQuality ?? 5);
-    setStress(existing?.stress ?? 5);
-    setSymptoms(existing?.symptoms ?? []);
-    setSymptomsOtherText(existing?.symptomsOtherText ?? '');
-    setHydrationText(existing?.hydration ? String(existing.hydration) : '');
-    setMedicationTaken(existing?.medicationTaken ?? false);
-    setMovement(existing?.movement ?? false);
-    setNotes(existing?.notes ?? '');
-    setBanner(null);
-  }, [dateKey, existing]);
+  const hydrateToken = `${dateKey}:${existing?.updatedAt ?? 'none'}`;
 
   const snapshot = useMemo(
     () =>
@@ -129,6 +112,27 @@ export function CheckInScreen({ navigation, route }: Props) {
   );
 
   const isDirty = initialSnapshotRef.current !== '' && snapshot !== initialSnapshotRef.current;
+
+  useEffect(() => {
+    // Hydrate from storage when (a) date changes or (b) the stored entry changes,
+    // but never overwrite in-progress edits.
+    if (isDirty) return;
+    if (hydratedTokenRef.current === hydrateToken) return;
+    hydratedTokenRef.current = hydrateToken;
+    initialSnapshotRef.current = '';
+
+    setMood(existing?.mood ?? 5);
+    setEnergy(existing?.energy ?? 5);
+    setSleepQuality(existing?.sleepQuality ?? 5);
+    setStress(existing?.stress ?? 5);
+    setSymptoms(existing?.symptoms ?? []);
+    setSymptomsOtherText(existing?.symptomsOtherText ?? '');
+    setHydrationText(existing?.hydration ? String(existing.hydration) : '');
+    setMedicationTaken(existing?.medicationTaken ?? false);
+    setMovement(existing?.movement ?? false);
+    setNotes(existing?.notes ?? '');
+    setBanner(null);
+  }, [existing, hydrateToken, isDirty]);
 
   useEffect(() => {
     // Capture initial snapshot after state settles (and after re-init).

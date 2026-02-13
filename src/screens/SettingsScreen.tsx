@@ -142,7 +142,7 @@ export function SettingsScreen() {
         <Text style={styles.title}>Danger zone</Text>
         <Text style={styles.body}>Clear all local data from this device.</Text>
         <View style={{ marginTop: Spacing.md }}>
-          <PrimaryButton label="Clear all data" onPress={confirmClearAll} />
+          <PrimaryButton label="Clear all data" onPress={confirmClearAll} tone="danger" />
         </View>
       </Card>
 
